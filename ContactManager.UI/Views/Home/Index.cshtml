@@ -1,0 +1,156 @@
+﻿@section scripts {
+    @Scripts.Render("~/bundles/app")
+}
+
+<style>
+    #SearchBox {
+        width: 200px;
+        float: right;
+    }
+
+    .modal {
+        left: 25%;
+        height: 45% !important;
+        margin: 100px !important;
+        display: table;
+        overflow-y: auto;
+        overflow-x: auto;
+        width: auto;
+        min-width: 30%;
+        background: #fff;
+    }
+
+    .form-control {
+        display: inline;
+        float: right !important;
+    }
+
+    .tableRows {
+        cursor: pointer; 
+    }
+
+    #CSVUploadForm {
+        display: inline-block;
+    }
+
+    #PersonalTypeRadioButton {
+        margin-left: 20px;
+    }
+
+    .alert-danger {
+        margin: 20px 10px 20px;
+    }
+
+    #ContactsFile{
+        margin: 7px;
+    }
+
+    #FileUpload {
+        margin-right: 20px;
+    }
+</style>
+<div class="page-header">
+    <h3>Contacts</h3>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <div class="input-group">
+                    <input data-bind="textInput: query" id="SearchBox" type="text" class="form-control" placeholder="Search Contacts">
+                    <div class="input-group-btn">
+                        <button class="btn btn-primary"><i class="glyphicon glyphicon-search"></i></button>
+                    </div>
+                </div>
+            </div>
+            <table id="ContactsTable" class="table">
+                <thead class="panel-heading">
+                    <tr class="panel-title">
+                        <th scope="col" class="detailHeaders">First Name</th>
+                        <th scope="col" class="detailHeaders">Last Name</th>
+                        <th scope="col" class="detailHeaders">Email Address</th>
+                        <th scope="col" class="detailHeaders">Email Address Type</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- ko foreach: filteredContacts-->
+                    <tr class="tableRows" data-toggle="modal" data-target="#AddEditContactModal" href="#" data-bind="click: EditContact">
+                        <td data-bind="text: FirstName"></td>
+                        <td data-bind="text: LastName"></td>
+                        <td data-bind="text: EmailAddress"></td>
+                        <td data-bind="text: EmailAddressType == 1? 'Personal' : 'Business' "></td>
+                    </tr>
+                    <!-- /ko -->
+                </tbody>
+            </table>
+        </div>
+        <div class="alert alert-danger" data-bind="visible: error().length"><p data-bind="text: error"></p></div> 
+        <form id="CSVUploadForm">
+            <button href="#" id="FileUpload" type="button" class="btn btn-primary pull-left">
+                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                Upload CSV File
+            </button> 
+            <input type="file" id="ContactsFile" name="ContactsFile" />
+        </form>  
+        <button type="button" data-toggle="modal" data-target="#AddEditContactModal" class="btn btn-primary buttonAddNewContact pull-right"
+                data-bind="click: AddNewContact">
+            <span class="glyphicon glyphicon-file" aria-hidden="true"></span>
+            Add New Contact
+        </button>
+    </div>
+</div>
+
+<div class="modal fade" id="AddEditContactModal" role="dialog" aria-labelledby="addContactModal" aria-hidden="true">
+    <form data-bind="submit: SaveContact">
+        <div class="modal-header">
+            <a class="close" data-dismiss="modal">×</a>
+            <h3>Contact Details</h3>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>First Name</label>
+                <input type="text" class="form-control" id="FirstName" placeholder="Contact's first name"
+                       data-bind="value: ContactBeingEdited() && ContactBeingEdited().FirstName, valueUpdate: 'afterkeydown'">
+            </div>
+            <div class="form-group">
+                <label>Last Name</label>
+                <input type="text" class="form-control" id="LastName" placeholder="Contact's last name"
+                       data-bind="value: ContactBeingEdited() && ContactBeingEdited().LastName, valueUpdate: 'afterkeydown'">
+            </div>
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="text" class="form-control" id="EmailAddress" placeholder="Contact's email address"
+                       data-bind="value: ContactBeingEdited() && ContactBeingEdited().EmailAddress, valueUpdate: 'afterkeydown'">
+            </div>
+            <div class="form-group">
+                <label>Email Address Type</label>
+
+                <input id="PersonalTypeRadioButton" class="form-check-input" type="radio" name="EmailAddressType"
+                       data-bind="checkedValue: 1,
+                                           checked: ContactBeingEdited() && ContactBeingEdited().EmailAddressType" checked />
+                <label class="form-check-label" for="exampleRadios1">
+                    Personal
+                </label>
+                <input class="form-check-input" type="radio" name="EmailAddressType"
+                       data-bind="checkedValue: 2,
+                                           checked: ContactBeingEdited() && ContactBeingEdited().EmailAddressType" />
+                <label class="form-check-label" for="exampleRadios2">
+                    Business
+                </label>
+            </div>
+
+            <!-- ko if: ValidationErrors() && ValidationErrors().length > 0 -->
+            <div class="alert alert-danger">
+                Please correct the following errors:
+                <ul data-bind="foreach: { data: ValidationErrors, as: 'errorMessage' }">
+                    <li data-bind="text: errorMessage"></li>
+                </ul>
+            </div>
+            <!-- /ko -->
+        </div>
+        <div class="modal-footer">
+            <button type="button" data-dismiss="modal" class="btn btn-default">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+    </form>
+</div> 
